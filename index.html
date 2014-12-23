@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Cubify</title>
+    <script src="js/jquery.temp.min.js"></script>
+    <!--<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>-->
+    <script src="js/jquery.qtip.min.js"></script>
+    <script src="js/main.js"></script>
+    <link href='css/tempfonts.css' rel='stylesheet' type='text/css'>
+    <!--<link href='http://fonts.googleapis.com/css?family=Droid+Sans|Righteous' rel='stylesheet' type='text/css'>-->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/cubes.css">
+    <link rel="stylesheet" href="css/jquery.qtip.css">
+  </head>
+  <body>
+    <div id="message_area">
+      <p id="message">loading</p>
+    </div>
+    <div id="preview_area">
+      <p>Preview</p>
+      <img id="preview">
+    </div>
+    <div id="options_area">
+      <div class="contents">
+        <div id="header">
+          <h1>Cubify</h1>
+          <p>Make beautiful Rubiks Cube art, easily.</p>
+        </div>
+        <form id="form_id" action="index.html" method="post">
+          <div class="input_group">
+            <input oninput="updateSlider()" onchange="cubify()" type="range" name="width" min="1" max="80" value="50">
+            <label for="width">Width: 50 cubes</label>
+          </div>
+          <div class="input_group">
+            <select name="profile" onchange="cubify()">
+              <option value="rubiks3x3" selected="selected">3x3 Rubik's Cubes</option>
+              <option value="minecraft">1x1 Minecraft Cubes</option>
+            </select>
+            <label for="profile">Cube Profile</label>
+          </div>
+          <div class="input_group">
+            <select name="filter" onchange="cubify()">
+              <option value="colormapping">Color Mapping</option>
+              <option value="floyd-steinberg" selected="selected">Floyd-Steinberg (default)</option>
+            </select>
+            <label for="filter">Image Filter</label>
+          </div>
+          <input type="file" onchange="cubify()" name="image_upload" value="">
+        </form>
+      </div>
+    </div>
+    <div id="blueprint_area">
+      <div id="message_area">
+        <p id="message">loading</p>
+      </div>
+      <ul>
+        <li>
+          <h1>Step 1</h1>
+          <img src="images/config.png">
+          <p>Pick your options</p>
+        </li>
+        <li>
+          <h1>Step 2</h1>
+          <img src="images/photo.png">
+          <p>Upload your image</p>
+        </li>
+        <li>
+          <h1>Step 3</h1>
+          <img src="images/cube.png">
+          <p>Assemble your art</p>
+        </li>
+      </ul>
+    </div>
+  </body>
+</html>
