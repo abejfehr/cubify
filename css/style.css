@@ -187,7 +187,7 @@ li p {
   border-left:2px solid #E879BD;
   border-bottom:2px solid #E879BD;
   position: fixed;
-  top: 51px;
+  top: 61px;
   left: 50%;
   margin-left:-75px;
   text-align:center;
@@ -200,6 +200,21 @@ li p {
 
 #message_area p {
   margin:0;
+}
+
+#message_area.warn {
+  background-color:#F7B7DF;
+  border-color:#E879BD;
+}
+
+#message_area.inform {
+  background-color:#eee;
+  border-color:#aaa;
+}
+
+#message_area.succeed {
+  background-color:#79E8A4;
+  border-color:#39B368;
 }
 
 /* Preview Area */

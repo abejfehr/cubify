@@ -30,13 +30,14 @@
   background-color: rgb(221,221,221);
 }
 
-.orangeWool {
-  background-color: rgb(219,125,62 ); }
-}
+.orangeWool
+{ background-color: rgb(219,125,62 ); }
 .magentaWool
 { background-color: rgb(179,80 ,188); }
+.lightBlueWool
+{ background-color: rgb(107,138,201) }
 .yellowWool
-{ background-color: rgb(107,138,39 ); }
+{ background-color: rgb(177,166,39 ); }
 .limeWool
 { background-color: rgb(65 ,174,56 ); }
 .pinkWool
