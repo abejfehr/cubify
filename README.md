@@ -19,15 +19,29 @@ Parameters
 
 **Cube Profile:** Each color profile contains the cube size as well as the color options that are available. Available options are 
 
-- [*3x3 Rubik's cubes*](https://en.wikipedia.org/wiki/Rubik%27s_Cube)
-- [*Minecraft*](https://minecraft.net/) cubes.
+- [**3x3 Rubik's cubes**](https://en.wikipedia.org/wiki/Rubik%27s_Cube)
+- [**Minecraft**](https://minecraft.net/) cubes.
 
 **Image Filter:** Controls how the image's colors will be mapped when it is resized. Available options are:
 
 - **Color Mapping** - Each pixel is given it's closest RGB palette color
 - [**Floyd-Steinberg**](https://en.wikipedia.org/wiki/Floyd%E2%80%93Steinberg_dithering) - The image is dithered using the popular Floyd-Steinberg algorithm
+- **[Ordered Dithering](https://en.wikipedia.org/wiki/Ordered_dithering) (beta)**
 
-To Do
-=====
-- [Ordered Dithering](https://en.wikipedia.org/wiki/Ordered_dithering)
-- Various Optimizations
+
+Supported Environments
+======================
+
+Web Browsers
+------------
+This app has been tested and is working in:
+- Chrome 39
+- Firefox 34
+
+It does NOT work in Internet Explorer.
+
+Image Filetypes
+---------------
+- JPEG(.jpg and .jpeg)
+- GIF
+- PNG
