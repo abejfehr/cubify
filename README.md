@@ -7,7 +7,7 @@ Make beautiful cube art, easily.
 
 ![Martin Luthor King Rubik's Cube Art Closeup](https://c1.staticflickr.com/5/4083/5047234667_43cede6b18_z.jpg)
 
-The above art wasn't created using cubify, but are exmamples of work that could be created. If anyone has images of art that was created with it, send me a link and I can showcase it here.
+The above art wasn't created using cubify, but are exmamples of work that could be created. If anyone has images of art that was created with it, [send me a link](abe.fehr@gmail.com) and I can showcase it here.
 
 How to use
 ==========
@@ -17,7 +17,7 @@ Parameters
 ----------
 **Width:** The number of cubes wide the piece will be. Note that this doesn't directly correlate with the number of pixels in the image for all kinds of cubes.
 
-**Cube Profile:** Each color profile contains the cube size as well as the color options that are available. Available options are 
+**Cube Profile:** Each color profile contains the cube size as well as the color options that are available. Available options are:
 
 - [**3x3 Rubik's cubes**](https://en.wikipedia.org/wiki/Rubik%27s_Cube)
 - [**Minecraft**](https://minecraft.net/) cubes.
