@@ -7,7 +7,7 @@ Make beautiful cube art, easily.
 
 ![Martin Luthor King Rubik's Cube Art Closeup](https://c1.staticflickr.com/5/4083/5047234667_43cede6b18_z.jpg)
 
-The above art wasn't created using cubify, but are exmamples of work that could be created. If anyone has images of art that was created with it, [send me a link](abe.fehr@gmail.com) and I can showcase it here.
+The above art wasn't created using cubify, but are exmamples of work that could be created. If anyone has images of art that was created with it, [send me a link](mailto:abe.fehr@gmail.com) and I can showcase it here.
 
 How to use
 ==========
