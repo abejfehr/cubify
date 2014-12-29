@@ -1,4 +1,6 @@
 //main.js
+var previewImage, previewContainer;
+
 var profiles = {
   "rubiks3x3": {
     size: 3,
@@ -17,7 +19,8 @@ var profiles = {
 { color: [221,221,221], type: 'White wool', class: 'whiteWool'},
 { color: [219,125,62 ], type: 'Orange wool', class: 'orangeWool'},
 { color: [179,80 ,188], type: 'Magenta wool', class: 'magentaWool'},
-{ color: [107,138,39 ], type: 'Yellow wool', class: 'yellowWool'},
+{ color: [107,138,201], type: 'Light blue wool', class: 'lightBlueWool'},
+{ color: [177,166,39 ], type: 'Yellow wool', class: 'yellowWool'},
 { color: [65 ,174,56 ], type: 'Lime wool', class: 'limeWool'},
 { color: [208,132,153], type: 'Pink wool', class: 'pinkWool'},
 { color: [64 ,64 ,64 ], type: 'Gray wool', class: 'grayWool'},
@@ -53,14 +56,10 @@ var filters = {
   },
   "floyd-steinberg": function(image, palette) {
     var ctx = image.getContext('2d');
-    // Declaring the variables outside of the for loop
-    var oldpixel;
-    var newpixel;
-    var quant_error;
+    var oldpixel, newpixel, quant_error;
 
-    writeMessage('dithering image...');
+    writeMessage('dithering image...', 'inform');
 
-    // Convert each color to it's closest rubiks equivalent
     for (var i = 0; i < image.height; i++) {
       for (var j = 0; j < image.width; j++) {
         oldpixel = ctx.getImageData(j,i,1,1);
@@ -71,6 +70,33 @@ var filters = {
         ctx.putImageData(pixelAdd(ctx.getImageData(j-1,i+1,1,1),pixelMultiply(quant_error, 3/16)),j-1,i+1);
         ctx.putImageData(pixelAdd(ctx.getImageData(j  ,i+1,1,1),pixelMultiply(quant_error, 5/16)),j  ,i+1);
         ctx.putImageData(pixelAdd(ctx.getImageData(j+1,i+1,1,1),pixelMultiply(quant_error, 1/16)),j+1,i+1);
+      }
+    }
+
+    return image;
+  },
+  "ordered": function(image, palette) {
+    var ctx = image.getContext('2d');
+
+    var oldpixel, newpixel;
+
+    var gamma = 96; // Fixed value for now, seems to give good results
+    var threshold = 7;
+
+    // 3x2 Bayer matrix for threshold map
+    var threshold_map =
+    [[{data:[3/threshold*gamma,3/threshold*gamma,3/threshold*gamma]},
+    {data:[6/threshold*gamma,6/threshold*gamma,6/threshold*gamma]},
+    {data:[4/threshold*gamma,4/threshold*gamma,4/threshold*gamma]}],
+    [{data:[2/threshold*gamma,2/threshold*gamma,2/threshold*gamma]},
+    {data:[1/threshold*gamma,1/threshold*gamma,1/threshold*gamma]},
+    {data:[5/threshold*gamma,5/threshold*gamma,5/threshold*gamma]}]];
+
+    for (var i = 0; i < image.height; i++) {
+      for (var j = 0; j < image.width; j++) {
+        oldpixel = pixelAdd(ctx.getImageData(j,i,1,1), threshold_map[i % 2][j % 3]);
+        newpixel = getClosestColor(oldpixel, palette);
+        ctx.putImageData(newpixel,j,i);
       }
     }
 
@@ -100,23 +126,35 @@ var cubify = function() {
 
   cubeSize = profiles[cubeProfile].size;
 
-  // Show that we're loading
-  showMessage();
-  writeMessage('generating...');
 
   // Get the image data
   if (file) {
-    reader.readAsDataURL(file); //reads the data as a URL
+    var fileName = $('input[type=file]').val();
+    //Check if the filetype is invalid first
+    if(!(fileName.lastIndexOf("jpg") === fileName.length - 3 ||
+      fileName.lastIndexOf("jpeg") === fileName.length - 4 ||
+      fileName.lastIndexOf("png") === fileName.length - 3 ||
+      fileName.lastIndexOf("gif") === fileName.length - 3 )) {
+        showMessage();
+        writeMessage('incorrect format!', 'warn');
+        window.setTimeout(hideMessage, 2000);
+        preview.src = "";
+    }
+    else {
+      // Show that we're loading
+      showMessage();
+      writeMessage('generating...', 'inform');
+
+      reader.readAsDataURL(file); //reads the data as a URL
+    }
   }
   else {
-    writeMessage('no image found!');
-    window.setTimeout(hideMessage, 2000);
     preview.src = "";
   }
 
   // Once the image is loaded...
   reader.onloadend = function () {
-    writeMessage('resizing image...');
+    writeMessage('resizing image...', 'inform');
     // Resize the image
     result.src = reader.result;
 
@@ -126,7 +164,7 @@ var cubify = function() {
     $('#preview_area').show();
 
 
-    writeMessage('drawing blueprint...');
+    writeMessage('drawing blueprint...', 'inform');
     // Add the picture to the blueprint
     drawBlueprint(processedImage);
 
@@ -134,8 +172,6 @@ var cubify = function() {
     hideMessage();
   }
 }
-
-
 
 
 
@@ -173,6 +209,8 @@ function processImage(img, width, palette, smooth) {
   return filters[cubeFilter](canvas, palette);
 }
 
+
+
 //
 // getClosestColor - returns the closest color to c from a palette of colors
 //
@@ -191,7 +229,6 @@ var getClosestColor = function(c, palette) {
       index = i;
     }
   }
-
 
   var canvas = document.createElement('canvas');
   var ctx = canvas.getContext('2d');
@@ -273,7 +310,7 @@ var drawBlueprint = function(canvas) {
 
           color_data.push(cIndex);
 
-          c_cell = $('<td></td>').addClass('bp_cube_cell').addClass(index_to_color(cIndex));
+          c_cell = $('<td></td>').addClass('bp_cube_cell').css('background-color','rgb(' + index_to_color(cIndex) + ')');
           c_row.append(c_cell);
         }
         cube_table.append(c_row);
@@ -285,7 +322,7 @@ var drawBlueprint = function(canvas) {
   }
   blueprint_area.append(table);
 
-  writeMessage('creating tooltips...');
+  writeMessage('creating tooltips...', 'inform');
   $(".bp_cell").each(function() {
     var content = getQTipContent($(this));
 
@@ -307,7 +344,7 @@ var drawBlueprint = function(canvas) {
     });
   });
 
-  writeMessage('finished!', '#79E8A4', '#39B368');
+  writeMessage('finished!', 'succeed');
 }
 
 var getQTipContent = function(cell) {
@@ -334,8 +371,10 @@ var getQTipContent = function(cell) {
   for (var i = 0; i < cubeSize; i++) {
     var row = $('<tr></tr>');
     for (var j = 0; j < cubeSize; j++) {
-      var cell = $('<td></td>').addClass(index_to_color(color_data[i*cubeSize+j]));
+      var rgbValues = index_to_color(color_data[i*cubeSize+j]);
+      var cell = $('<td></td>')
       row.append(cell);
+      cell.css('background-color','rgb(' + rgbValues + ')');
     }
     table.append(row).css('width','50px').css('height','50px').css('border-spacing','1px');
   }
@@ -363,7 +402,7 @@ var getQTipContent = function(cell) {
 var index_to_color = function(i) {
   if(i < 0)
     return 'white';
-  return profiles[cubeProfile].palette[i].class;
+  return profiles[cubeProfile].palette[i].color;
 }
 
 var all_same = function(arr) {
@@ -380,36 +419,36 @@ var updateSlider = function() {
   $('label[for=width]').html('Width: ' + cubeWidth + ' cubes');
 }
 
+// Message functions
 var showMessage = function() {
   $('#message_area').show();
 }
 
 var hideMessage = function() {
-  $('#message_area').fadeOut(300, function() {
-    // Restore the color
-    $('#message_area').css('background-color','#F7B7DF');
-    $('#message_area').css('border-color','#E879BD');
-  });
+  $('#message_area').fadeOut(300);
 }
 
-var writeMessage = function(text, bgcolor, bordercolor) {
+var writeMessage = function(text, level) {
+  if(!level)
+    level = "inform";
   $('#message').html(text);
-  $('#message_area').css('background-color', bgcolor);
-  $('#message_area').css('border-color', bordercolor);
+  $('#message_area').removeClass().addClass(level);
 }
-
 
 // Listen for mouse movement
 var mX, mY, distance;
+$(document).ready(function() {
+  previewImage = $('#preview');
+  previewContainer = $('#preview_area')
+});
 
 $(document).mousemove(function(e) {
-  var element = $('#preview_area');
   mX = e.pageX;
   mY = e.pageY;
-  if($('#preview').attr('src') &&
-    !(mX > $(document).width() - $('#preview_area').width() - 90 && mY >
-    $(document).height() - $('#preview_area').height() - 90))
-    $('#preview_area').show();
+  if(previewImage.attr('src') &&
+    !(mX > $(document).width() - previewContainer.width() - 90 && mY >
+    $(document).height() - previewContainer.height() - 90))
+    previewContainer.show();
   else
-    $('#preview_area').hide();
+    previewContainer.hide();
 });
