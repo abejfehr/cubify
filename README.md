@@ -1,4 +1,4 @@
-Cubify
+[Cubify](http://abefehr.com/cubify/)
 ======
 
 Make beautiful cube art, easily.
@@ -11,7 +11,7 @@ The above art wasn't created using cubify, but are exmamples of work that could 
 
 How to use
 ==========
-Just set the available options in toolbar, upload your image, and assemble your art using the generated blueprint.
+Just set the available options in toolbar, upload your image, and assemble your art using the generated blueprint. The site can be found [here](http://abefehr.com/cubify/).
 
 Parameters
 ----------
