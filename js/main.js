@@ -438,8 +438,19 @@ var writeMessage = function(text, level) {
 // Listen for mouse movement
 var mX, mY, distance;
 $(document).ready(function() {
+  var ua, ms_ie;
+
   previewImage = $('#preview');
   previewContainer = $('#preview_area')
+
+  ua = window.navigator.userAgent;
+  ms_ie = ~ua.indexOf('MSIE ') || ~ua.indexOf('Trident/');
+
+  if(ms_ie) {
+    alert("Sorry!\n\nThis website doesn't currently support Internet Explorer.\n\
+    \nPlease return using either Chrome or Firefox in order to use this page.");
+    $('body').html("This is an unsupported browser.");
+  }
 });
 
 $(document).mousemove(function(e) {
