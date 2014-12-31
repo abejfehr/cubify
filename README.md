@@ -1,7 +1,7 @@
 [Cubify](http://abefehr.com/cubify/)
 ======
 
-Make beautiful cube art, easily.
+Create beautiful cube mosaics, easily.
 
 ![Martin Luthor King Rubik's Cube Art](http://api.ning.com/files/kV4MbYiv7oQmd9OcINNPMSwdUVegnN1*ev7-JuE-o4CyaSz1aTvgB0jMsHY9KoaQKg0LzPTRyiDFwD*0usqXwXj5sPOyAw3n/1082081843.jpeg)
 
