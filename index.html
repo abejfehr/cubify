@@ -22,6 +22,17 @@
     </script>
   </head>
   <body>
+    <!-- Begin Facebook SDK -->
+    <div id="fb-root"></div>
+    <script>(function(d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s); js.id = id;
+      js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&appId=684388221581996&version=v2.0";
+      fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));</script>
+    <!-- End Facebook SDK -->
+
     <div id="message_area">
       <p id="message">loading</p>
     </div>
@@ -80,6 +91,14 @@
           <p>Assemble your art</p>
         </li>
       </ul>
+    </div>
+    <div id="footer">
+      <div id="footerLeft">
+        <div class="fb-like" data-href="http://abefehr.com/cubify" data-layout="standard" data-action="like" data-show-faces="true" data-share="true"></div>
+      </div>
+      <div id="footerRight">
+        <a href="mailto:abe.fehr@gmail.com">Report an issue</a>
+      </div>
     </div>
   </body>
 </html>
