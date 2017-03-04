@@ -1,37 +1,46 @@
 //main.js
 var previewImage, previewContainer;
 
+// For timing
+var start = performance.now();
+
+// A canvas for all 1-pixel edits
+var p1canvas = document.createElement('canvas');
+var p1ctx = p1canvas.getContext('2d');
+var p1id = p1ctx.createImageData(1,1);
+var p1 = p1id.data;
+
 var profiles = {
   "rubiks3x3": {
     size: 3,
     palette: [
-{ color: [255,255,255], class: 'rubiksWhite' },
-{ color: [255,255,0  ], class: 'rubiksYellow' },
-{ color: [255,0  ,0  ], class: 'rubiksRed'},
-{ color: [255,123,0  ], class: 'rubiksOrange' },
-{ color: [0  ,0  ,255], class: 'rubiksBlue' },
-{ color: [0  ,255,0  ], class: 'rubiksGreen' }
-]
+      { color: [255,255,255], class: 'rubiksWhite' },
+      { color: [255,255,0  ], class: 'rubiksYellow' },
+      { color: [255,0  ,0  ], class: 'rubiksRed'},
+      { color: [255,123,0  ], class: 'rubiksOrange' },
+      { color: [0  ,0  ,255], class: 'rubiksBlue' },
+      { color: [0  ,255,0  ], class: 'rubiksGreen' }
+    ]
   },
   "minecraft": {
     size: 1,
     palette: [
-{ color: [221,221,221], type: 'White wool', class: 'whiteWool'},
-{ color: [219,125,62 ], type: 'Orange wool', class: 'orangeWool'},
-{ color: [179,80 ,188], type: 'Magenta wool', class: 'magentaWool'},
-{ color: [107,138,201], type: 'Light blue wool', class: 'lightBlueWool'},
-{ color: [177,166,39 ], type: 'Yellow wool', class: 'yellowWool'},
-{ color: [65 ,174,56 ], type: 'Lime wool', class: 'limeWool'},
-{ color: [208,132,153], type: 'Pink wool', class: 'pinkWool'},
-{ color: [64 ,64 ,64 ], type: 'Gray wool', class: 'grayWool'},
-{ color: [154,161,161], type: 'Light gray wool', class: 'lightGrayWool'},
-{ color: [46 ,110,137], type: 'Cyan wool', class: 'cyanWool'},
-{ color: [126,61 ,181], type: 'Purple wool', class: 'purpleWool'},
-{ color: [46 ,56 ,141], type: 'Blue wool', class: 'blueWool'},
-{ color: [79 ,50 ,31 ], type: 'Brown wool', class: 'brownWool'},
-{ color: [53 ,70 ,27 ], type: 'Green wool', class: 'greenWool'},
-{ color: [150,52 ,48 ], type: 'Red wool', class: 'redWool'},
-{ color: [25 ,22 ,22 ], type: 'Black wool', class: 'blackWool'}
+      { color: [221,221,221], type: 'White wool', class: 'whiteWool'},
+      { color: [219,125,62 ], type: 'Orange wool', class: 'orangeWool'},
+      { color: [179,80 ,188], type: 'Magenta wool', class: 'magentaWool'},
+      { color: [107,138,201], type: 'Light blue wool', class: 'lightBlueWool'},
+      { color: [177,166,39 ], type: 'Yellow wool', class: 'yellowWool'},
+      { color: [65 ,174,56 ], type: 'Lime wool', class: 'limeWool'},
+      { color: [208,132,153], type: 'Pink wool', class: 'pinkWool'},
+      { color: [64 ,64 ,64 ], type: 'Gray wool', class: 'grayWool'},
+      { color: [154,161,161], type: 'Light gray wool', class: 'lightGrayWool'},
+      { color: [46 ,110,137], type: 'Cyan wool', class: 'cyanWool'},
+      { color: [126,61 ,181], type: 'Purple wool', class: 'purpleWool'},
+      { color: [46 ,56 ,141], type: 'Blue wool', class: 'blueWool'},
+      { color: [79 ,50 ,31 ], type: 'Brown wool', class: 'brownWool'},
+      { color: [53 ,70 ,27 ], type: 'Green wool', class: 'greenWool'},
+      { color: [150,52 ,48 ], type: 'Red wool', class: 'redWool'},
+      { color: [25 ,22 ,22 ], type: 'Black wool', class: 'blackWool'}
     ]
   }
 };
@@ -44,11 +53,11 @@ var filters = {
     var newpixel;
 
     // Convert each color to it's closest rubiks equivalent
-    for (var i = 0; i < image.height; i++) {
-      for (var j = 0; j < image.width; j++) {
+    for (let i = 0; i < image.height; i++) {
+      for (let j = 0; j < image.width; j++) {
         oldpixel = ctx.getImageData(j,i,1,1);
         newpixel = getClosestColor(oldpixel, palette);
-        ctx.putImageData(newpixel,j,i);
+        ctx.putImageData(newpixel, j, i);
       }
     }
 
@@ -60,16 +69,17 @@ var filters = {
 
     writeMessage('dithering image...', 'inform');
 
-    for (var i = 0; i < image.height; i++) {
-      for (var j = 0; j < image.width; j++) {
+    for (let i = 0; i < image.height; i++) {
+      for (let j = 0; j < image.width; j++) {
         oldpixel = ctx.getImageData(j,i,1,1);
         newpixel = getClosestColor(oldpixel, palette);
-        ctx.putImageData(newpixel,j,i);
+        // console.log(newpixel);
+        ctx.putImageData(newpixel, j, i);
         quant_error = pixelSubtract(oldpixel, newpixel);
-        ctx.putImageData(pixelAdd(ctx.getImageData(j+1,i  ,1,1),pixelMultiply(quant_error, 7/16)),j+1,i  );
-        ctx.putImageData(pixelAdd(ctx.getImageData(j-1,i+1,1,1),pixelMultiply(quant_error, 3/16)),j-1,i+1);
-        ctx.putImageData(pixelAdd(ctx.getImageData(j  ,i+1,1,1),pixelMultiply(quant_error, 5/16)),j  ,i+1);
-        ctx.putImageData(pixelAdd(ctx.getImageData(j+1,i+1,1,1),pixelMultiply(quant_error, 1/16)),j+1,i+1);
+        ctx.putImageData(pixelAdd(ctx.getImageData(j+1,i  ,1,1), pixelMultiply(quant_error, 7/16)), j+1, i  );
+        ctx.putImageData(pixelAdd(ctx.getImageData(j-1,i+1,1,1), pixelMultiply(quant_error, 3/16)), j-1, i+1);
+        ctx.putImageData(pixelAdd(ctx.getImageData(j  ,i+1,1,1), pixelMultiply(quant_error, 5/16)), j  , i+1);
+        ctx.putImageData(pixelAdd(ctx.getImageData(j+1,i+1,1,1), pixelMultiply(quant_error, 1/16)), j+1, i+1);
       }
     }
 
@@ -92,8 +102,8 @@ var filters = {
     {data:[1/threshold*gamma,1/threshold*gamma,1/threshold*gamma]},
     {data:[5/threshold*gamma,5/threshold*gamma,5/threshold*gamma]}]];
 
-    for (var i = 0; i < image.height; i++) {
-      for (var j = 0; j < image.width; j++) {
+    for (let i = 0; i < image.height; i++) {
+      for (let j = 0; j < image.width; j++) {
         oldpixel = pixelAdd(ctx.getImageData(j,i,1,1), threshold_map[i % 2][j % 3]);
         newpixel = getClosestColor(oldpixel, palette);
         ctx.putImageData(newpixel,j,i);
@@ -114,7 +124,8 @@ var cubeProfile;
 var cubeSize;
 
 var cubify = function() {
-  var preview = document.querySelector('#preview');
+  start = performance.now();
+  var preview = document.getElementById('preview');
   var file    = document.querySelector('input[type=file]').files[0]; //sames as here
   var reader  = new FileReader();
   var result  = new Image();
@@ -129,7 +140,7 @@ var cubify = function() {
 
   // Get the image data
   if (file) {
-    var fileName = $('input[type=file]').val();
+    var fileName = document.getElementById('file_input').value;
     //Check if the filetype is invalid first
     if(!(fileName.lastIndexOf("jpg") === fileName.length - 3 ||
       fileName.lastIndexOf("jpeg") === fileName.length - 4 ||
@@ -214,32 +225,34 @@ function processImage(img, width, palette, smooth) {
 //
 // getClosestColor - returns the closest color to c from a palette of colors
 //
+var memo = {}; // Only works with 1 palette for now
 var getClosestColor = function(c, palette) {
   var distance = 999999;
   var index = -1;
 
+  if (memo[`${c.data[0]}-${c.data[1]}-${c.data[2]}`]) {
+    return memo[`${c.data[0]}-${c.data[1]}-${c.data[2]}`];
+  }
+
   //go through the colors in the palette
-  for (var i = 0; i < palette.length; ++i) {
-    var e = Math.pow(c.data[0]-palette[i].color[0],2) +
-      Math.pow(c.data[1]-palette[i].color[1],2) +
-      Math.pow(c.data[2]-palette[i].color[2],2);
-    var d = Math.sqrt(e);
+  for (let i = 0; i < palette.length; ++i) {
+    var d = Math.sqrt(Math.pow(c.data[0]-palette[i].color[0],2) +
+      Math.pow(c.data[1]-palette[i].color[1], 2) +
+      Math.pow(c.data[2]-palette[i].color[2], 2));
     if(d < distance) {
       distance = d;
       index = i;
     }
   }
 
-  var canvas = document.createElement('canvas');
-  var ctx = canvas.getContext('2d');
-  var f = ctx.getImageData(0,0,1,1);
+  p1[0] = palette[index].color[0];
+  p1[1] = palette[index].color[1];
+  p1[2] = palette[index].color[2];
+  p1[3] = 255;
 
-  f.data[0] = palette[index].color[0];
-  f.data[1] = palette[index].color[1];
-  f.data[2] = palette[index].color[2];
-  f.data[3] = 255;
+  memo[`${c.data[0]}-${c.data[1]}-${c.data[2]}`] = p1id;
 
-  return f;
+  return p1id;
 }
 
 var pixelSubtract = function(p1, p2) {
@@ -271,8 +284,12 @@ var printColor = function(c) {
 //
 var drawBlueprint = function(canvas) {
   var ctx = canvas.getContext('2d');
-  var blueprint_area = $('#blueprint_area').empty();
-  var table = $('<table id="blueprint"></table>');
+  var blueprint_area = document.getElementById('blueprint_area');
+  blueprint_area.innerHTML = '';
+  // var blueprint_area = $('#blueprint_area').empty();
+  // var table = $('<table id="blueprint"></table>');
+  var table = document.createElement('table');
+  table.id = 'blueprint';
 
   //the indices
   var i,j,k,m,n;
@@ -284,16 +301,24 @@ var drawBlueprint = function(canvas) {
   //go through all of the pixels here and draw the blueprint
   for (i = 0; i < canvas.height; i+=cubeSize) {
     //create a new table row in the blueprint
-    row = $('<tr></tr>').addClass('bp_row');
+    row = document.createElement('tr');
+    row.classList.add('bp_row');
+    // row = $('<tr></tr>').addClass('bp_row');
     for (j = 0; j < canvas.width; j+=cubeSize) {
-      cell = $('<td></td>').addClass('bp_cell');
+      cell = document.createElement('td');
+      cell.classList.add('bp_cell');
+      // cell = $('<td></td>').addClass('bp_cell');
 
       //in each cube cell, make another 3x3 table
-      cube_table = $('<table></table>').addClass('bp_cube_table');
+      cube_table = document.createElement('table');
+      cube_table.classList.add('bp_cube_table');
+      // cube_table = $('<table></table>').addClass('bp_cube_table');
 
       var color_data = [];
       for (k = 0; k < cubeSize; k++) {
-        c_row = $('<tr></tr>').addClass('bp_cube_row');
+        c_row = document.createElement('tr');
+        c_row.classList.add('bp_cube_row');
+        // c_row = $('<tr></tr>').addClass('bp_cube_row');
         for (m = 0; m < cubeSize; m++) {
 
           //create a new table cell in that row
@@ -310,11 +335,18 @@ var drawBlueprint = function(canvas) {
 
           color_data.push(cIndex);
 
-          c_cell = $('<td></td>').addClass('bp_cube_cell').css('background-color','rgb(' + index_to_color(cIndex) + ')');
+          c_cell = document.createElement('td');
+          c_cell.classList.add('bp_cube_cell');
+          c_cell.style.backgroundColor = 'rgb(' + index_to_color(cIndex) + ')';
+          // c_cell = $('<td></td>').addClass('bp_cube_cell').css('background-color','rgb(' + index_to_color(cIndex) + ')');
           c_row.append(c_cell);
         }
         cube_table.append(c_row);
-        cell.append(cube_table).attr('data-x', Math.floor(j / cubeSize) + 1).attr('data-y', Math.floor(i / cubeSize) + 1).attr('data-colors', color_data);
+        // cell.append(cube_table).attr('data-x', Math.floor(j / cubeSize) + 1).attr('data-y', Math.floor(i / cubeSize) + 1).attr('data-colors', color_data);
+        cell.append(cube_table);
+        // cell.setAttribute('data-x', Math.floor(j / cubeSize) + 1);
+        // cell.setAttribute('data-y', Math.floor(i / cubeSize) + 1);
+        // cell.setAttribute('data-colors', color_data);
       }
       row.append(cell);
     }
@@ -323,28 +355,30 @@ var drawBlueprint = function(canvas) {
   blueprint_area.append(table);
 
   writeMessage('creating tooltips...', 'inform');
-  $(".bp_cell").each(function() {
-    var content = getQTipContent($(this));
-
-    $(this).qtip({
-      content: {
-        text: content
-      },
-      position: {
-        my: 'left center',
-        at: 'right center',
-        viewport: $(window)
-      },
-      style: {
-        tip: true,
-        classes: 'ui-tooltip-dark ui-tooltip-rounded ui-tooltip-shadow'
-      },
-      show: { solo: true },
-      hide: { fixed: true },
-    });
-  });
+  // $(".bp_cell").each(function() {
+  //   // var content = getQTipContent($(this));
+  //   var content = 'static';
+  //
+  //   $(this).qtip({
+  //     content: {
+  //       text: content
+  //     },
+  //     position: {
+  //       my: 'left center',
+  //       at: 'right center',
+  //       viewport: $(window)
+  //     },
+  //     style: {
+  //       tip: true,
+  //       classes: 'ui-tooltip-dark ui-tooltip-rounded ui-tooltip-shadow'
+  //     },
+  //     show: { solo: true },
+  //     hide: { fixed: true },
+  //   });
+  // });
 
   writeMessage('finished!', 'succeed');
+  console.log(performance.now() - start);
 }
 
 var getQTipContent = function(cell) {
@@ -368,9 +402,9 @@ var getQTipContent = function(cell) {
 
   // Cube diagram
   var table = $('<table></table>');
-  for (var i = 0; i < cubeSize; i++) {
+  for (let i = 0; i < cubeSize; i++) {
     var row = $('<tr></tr>');
-    for (var j = 0; j < cubeSize; j++) {
+    for (let j = 0; j < cubeSize; j++) {
       var rgbValues = index_to_color(color_data[i*cubeSize+j]);
       var cell = $('<td></td>')
       row.append(cell);
@@ -407,7 +441,7 @@ var index_to_color = function(i) {
 
 var all_same = function(arr) {
   var val = arr[0];
-  for (var i = 1; i < arr.length; i++) {
+  for (let i = 1; i < arr.length; i++) {
     if(arr[i] != val)
       return false;
   }
