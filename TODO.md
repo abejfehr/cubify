@@ -1,0 +1,5 @@
+- set up google analytics, so I can get feedback
+- see if the image processing can be sped up at all
+- fix terrible layout in medium/small mode
+- convert every cube table to an image
+- do something about the cubes in the bottom layer

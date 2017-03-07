@@ -55,7 +55,7 @@ var filters = {
     // Convert each color to it's closest rubiks equivalent
     for (let i = 0; i < image.height; i++) {
       for (let j = 0; j < image.width; j++) {
-        oldpixel = ctx.getImageData(j,i,1,1);
+        oldpixel = ctx.getImageData(j, i, 1, 1);
         newpixel = getClosestColor(oldpixel, palette);
         ctx.putImageData(newpixel, j, i);
       }
@@ -114,7 +114,6 @@ var filters = {
   }
 };
 
-
 // User's options
 var cubeWidth;
 var cubeFilter;
@@ -156,41 +155,35 @@ var cubify = function() {
       showMessage();
       writeMessage('generating...', 'inform');
 
-      reader.readAsDataURL(file); //reads the data as a URL
+      createImageBitmap(file, {
+        resizeWidth: cubeWidth * cubeSize,
+      }).then(function (image) {
+        writeMessage('resizing image...', 'inform');
+
+        // Convert and show the final picture
+        var processedImage = processImage(image, cubeWidth*cubeSize, profiles[cubeProfile].palette);
+        preview.src = processedImage.toDataURL();
+        $('#preview_area').show();
+
+        writeMessage('drawing blueprint...', 'inform');
+        // Add the picture to the blueprint
+        drawBlueprint(processedImage);
+
+        // End the loading
+        hideMessage();
+      });
     }
   }
   else {
     preview.src = "";
   }
-
-  // Once the image is loaded...
-  reader.onloadend = function () {
-    writeMessage('resizing image...', 'inform');
-    // Resize the image
-    result.src = reader.result;
-
-    // Convert and show the final picture
-    var processedImage = processImage(result, cubeWidth*cubeSize, profiles[cubeProfile].palette);
-    preview.src = processedImage.toDataURL();
-    $('#preview_area').show();
-
-
-    writeMessage('drawing blueprint...', 'inform');
-    // Add the picture to the blueprint
-    drawBlueprint(processedImage);
-
-    // End the loading
-    hideMessage();
-  }
 }
-
-
 
 //
 // processImage - resizes an image, takes it's colors from a profile's palette
 //  and returns it in a canvas.
 //
-function processImage(img, width, palette, smooth) {
+function processImage(img, width, palette) {
   // Create a canvas and the canvas context
   var canvas = document.createElement('canvas');
   var ctx = canvas.getContext('2d');
@@ -199,40 +192,18 @@ function processImage(img, width, palette, smooth) {
   canvas.width = width;
   canvas.height = canvas.width * img.height / img.width;
 
-  if(smooth){ // I made this optional to save time generating the image
-    var oc = document.createElement('canvas'),
-    octx = oc.getContext('2d');
-
-    oc.width = img.width * 0.5;
-    oc.height = img.height * 0.5;
-    octx.drawImage(img, 0, 0, oc.width, oc.height);
-
-    octx.drawImage(oc, 0, 0, oc.width * 0.5, oc.height * 0.5);
-
-    ctx.drawImage(oc, 0, 0, oc.width * 0.5, oc.height * 0.5,
-      0, 0, canvas.width, canvas.height);
-  }
-  else {
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-  }
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
   // Just return the canvas for later use
   return filters[cubeFilter](canvas, palette);
 }
 
-
-
 //
 // getClosestColor - returns the closest color to c from a palette of colors
 //
-var memo = {}; // Only works with 1 palette for now
 var getClosestColor = function(c, palette) {
-  var distance = 999999;
+  var distance = Infinity;
   var index = -1;
-
-  if (memo[`${c.data[0]}-${c.data[1]}-${c.data[2]}`]) {
-    return memo[`${c.data[0]}-${c.data[1]}-${c.data[2]}`];
-  }
 
   //go through the colors in the palette
   for (let i = 0; i < palette.length; ++i) {
@@ -249,8 +220,6 @@ var getClosestColor = function(c, palette) {
   p1[1] = palette[index].color[1];
   p1[2] = palette[index].color[2];
   p1[3] = 255;
-
-  memo[`${c.data[0]}-${c.data[1]}-${c.data[2]}`] = p1id;
 
   return p1id;
 }
@@ -280,15 +249,12 @@ var printColor = function(c) {
   alert(c.data[0] + "," + c.data[1] + "," + c.data[2]);
 }
 
-
 //
 var drawBlueprint = function(canvas) {
   var ctx = canvas.getContext('2d');
   var blueprint_area = document.getElementById('blueprint_area');
   blueprint_area.innerHTML = '';
-  // var blueprint_area = $('#blueprint_area').empty();
-  // var table = $('<table id="blueprint"></table>');
-  var table = document.createElement('table');
+  var table = document.createElement('div');
   table.id = 'blueprint';
 
   //the indices
@@ -301,52 +267,44 @@ var drawBlueprint = function(canvas) {
   //go through all of the pixels here and draw the blueprint
   for (i = 0; i < canvas.height; i+=cubeSize) {
     //create a new table row in the blueprint
-    row = document.createElement('tr');
+    row = document.createElement('div');
     row.classList.add('bp_row');
-    // row = $('<tr></tr>').addClass('bp_row');
     for (j = 0; j < canvas.width; j+=cubeSize) {
-      cell = document.createElement('td');
+      cell = document.createElement('div');
       cell.classList.add('bp_cell');
-      // cell = $('<td></td>').addClass('bp_cell');
 
       //in each cube cell, make another 3x3 table
-      cube_table = document.createElement('table');
+      cube_table = document.createElement('div');
       cube_table.classList.add('bp_cube_table');
-      // cube_table = $('<table></table>').addClass('bp_cube_table');
 
-      var color_data = [];
+      // var color_data = [];
       for (k = 0; k < cubeSize; k++) {
-        c_row = document.createElement('tr');
+        c_row = document.createElement('div');
         c_row.classList.add('bp_cube_row');
-        // c_row = $('<tr></tr>').addClass('bp_cube_row');
         for (m = 0; m < cubeSize; m++) {
 
           //create a new table cell in that row
-          var cIndex = -1;
+          // var cIndex = -1;
           var pixel = ctx.getImageData(j+m,i+k,1,1).data;
 
-          for (n = 0; n < profiles[cubeProfile].palette.length; n++) {
-            if(profiles[cubeProfile].palette[n].color[0] == pixel[0] &&
-              profiles[cubeProfile].palette[n].color[1] == pixel[1] &&
-              profiles[cubeProfile].palette[n].color[2] == pixel[2]) {
-                cIndex = n;
-            }
-          }
+          // for (n = 0; n < profiles[cubeProfile].palette.length; n++) {
+          //   if(profiles[cubeProfile].palette[n].color[0] == pixel[0] &&
+          //     profiles[cubeProfile].palette[n].color[1] == pixel[1] &&
+          //     profiles[cubeProfile].palette[n].color[2] == pixel[2]) {
+          //       cIndex = n;
+          //   }
+          // }
 
-          color_data.push(cIndex);
+          // color_data.push(cIndex);
 
-          c_cell = document.createElement('td');
+          c_cell = document.createElement('div');
           c_cell.classList.add('bp_cube_cell');
-          c_cell.style.backgroundColor = 'rgb(' + index_to_color(cIndex) + ')';
-          // c_cell = $('<td></td>').addClass('bp_cube_cell').css('background-color','rgb(' + index_to_color(cIndex) + ')');
+          c_cell.style.backgroundColor = `rgb(${pixel[0]},${pixel[1]},${pixel[2]})`;
+          // c_cell.style.backgroundColor = 'rgb(' + index_to_color(cIndex) + ')';
           c_row.append(c_cell);
         }
         cube_table.append(c_row);
-        // cell.append(cube_table).attr('data-x', Math.floor(j / cubeSize) + 1).attr('data-y', Math.floor(i / cubeSize) + 1).attr('data-colors', color_data);
         cell.append(cube_table);
-        // cell.setAttribute('data-x', Math.floor(j / cubeSize) + 1);
-        // cell.setAttribute('data-y', Math.floor(i / cubeSize) + 1);
-        // cell.setAttribute('data-colors', color_data);
       }
       row.append(cell);
     }
@@ -355,95 +313,76 @@ var drawBlueprint = function(canvas) {
   blueprint_area.append(table);
 
   writeMessage('creating tooltips...', 'inform');
-  // $(".bp_cell").each(function() {
-  //   // var content = getQTipContent($(this));
-  //   var content = 'static';
-  //
-  //   $(this).qtip({
-  //     content: {
-  //       text: content
-  //     },
-  //     position: {
-  //       my: 'left center',
-  //       at: 'right center',
-  //       viewport: $(window)
-  //     },
-  //     style: {
-  //       tip: true,
-  //       classes: 'ui-tooltip-dark ui-tooltip-rounded ui-tooltip-shadow'
-  //     },
-  //     show: { solo: true },
-  //     hide: { fixed: true },
-  //   });
-  // });
 
   writeMessage('finished!', 'succeed');
   console.log(performance.now() - start);
 }
 
-var getQTipContent = function(cell) {
-  var container = $('<div></div>').addClass('cell_metadata_container');
-
-  var x = parseInt(cell.attr('data-x'));
-  var y = parseInt(cell.attr('data-y'));
-  var color_data = cell.attr('data-colors');
-
-  color_data = color_data.split(',').map(function(val) {
-    return parseInt(val);
-  });
-
-  // Title
-  var title = $('<h1></h1>').append('Cube no. ' + (cubeWidth*(y-1)+x));
-  container.append(title);
-
-  // Coordinates
-  var coords = $('<p></p>').append('X: ' + x + ', Y: ' + y);
-  container.append(coords);
-
-  // Cube diagram
-  var table = $('<table></table>');
-  for (let i = 0; i < cubeSize; i++) {
-    var row = $('<tr></tr>');
-    for (let j = 0; j < cubeSize; j++) {
-      var rgbValues = index_to_color(color_data[i*cubeSize+j]);
-      var cell = $('<td></td>')
-      row.append(cell);
-      cell.css('background-color','rgb(' + rgbValues + ')');
-    }
-    table.append(row).css('width','50px').css('height','50px').css('border-spacing','1px');
-  }
-  container.append(table);
-
-  // Algorithm
-  if(cubeProfile == "rubiks3x3") {
-    var algorithm = $('<p></p>');
-    if(!all_same(color_data))
-      algorithm.append("Moves: <em>coming soon!</em>");
-    else
-      algorithm.append('No moves needed')
-    container.append(algorithm);
-  }
-
-  if(cubeProfile == "minecraft") {
-    var cubeName = $('<p></p>');
-    cubeName.append(profiles[cubeProfile].palette[color_data[0]].type);
-    container.append(cubeName);
-  }
-
-  return container.html();
-}
+// var getQTipContent = function(cell) {
+//   var container = $('<div></div>').addClass('cell_metadata_container');
+//
+//   var x = parseInt(cell.attr('data-x'));
+//   var y = parseInt(cell.attr('data-y'));
+//   var color_data = cell.attr('data-colors');
+//
+//   color_data = color_data.split(',').map(function(val) {
+//     return parseInt(val);
+//   });
+//
+//   // Title
+//   var title = $('<h1></h1>').append('Cube no. ' + (cubeWidth*(y-1)+x));
+//   container.append(title);
+//
+//   // Coordinates
+//   var coords = $('<p></p>').append('X: ' + x + ', Y: ' + y);
+//   container.append(coords);
+//
+//   // Cube diagram
+//   var table = $('<table></table>');
+//   for (let i = 0; i < cubeSize; i++) {
+//     var row = $('<tr></tr>');
+//     for (let j = 0; j < cubeSize; j++) {
+//       var rgbValues = index_to_color(color_data[i*cubeSize+j]);
+//       var cell = $('<td></td>')
+//       row.append(cell);
+//       cell.css('background-color','rgb(' + rgbValues + ')');
+//     }
+//     table.append(row).css('border-spacing','1px');
+//   }
+//   container.append(table);
+//
+//   // Algorithm
+//   if(cubeProfile == "rubiks3x3") {
+//     var algorithm = $('<p></p>');
+//     if(!all_same(color_data))
+//       algorithm.append("Moves: <em>coming soon!</em>");
+//     else
+//       algorithm.append('No moves needed')
+//     container.append(algorithm);
+//   }
+//
+//   if(cubeProfile == "minecraft") {
+//     var cubeName = $('<p></p>');
+//     cubeName.append(profiles[cubeProfile].palette[color_data[0]].type);
+//     container.append(cubeName);
+//   }
+//
+//   return container.html();
+// }
 
 var index_to_color = function(i) {
-  if(i < 0)
+  if(i < 0) {
     return 'white';
+  }
   return profiles[cubeProfile].palette[i].color;
 }
 
 var all_same = function(arr) {
   var val = arr[0];
   for (let i = 1; i < arr.length; i++) {
-    if(arr[i] != val)
+    if(arr[i] != val) {
       return false;
+    }
   }
   return true;
 }
@@ -455,18 +394,18 @@ var updateSlider = function() {
 
 // Message functions
 var showMessage = function() {
-  $('#message_area').show();
+  // $('#message_area').show();
 }
 
 var hideMessage = function() {
-  $('#message_area').fadeOut(300);
+  // $('#message_area').fadeOut(300);
 }
 
 var writeMessage = function(text, level) {
-  if(!level)
-    level = "inform";
-  $('#message').html(text);
-  $('#message_area').removeClass().addClass(level);
+  // if(!level)
+  //   level = "inform";
+  // $('#message').html(text);
+  // $('#message_area').removeClass().addClass(level);
 }
 
 // Listen for mouse movement

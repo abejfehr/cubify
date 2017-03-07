@@ -85,7 +85,12 @@ body {
 
 /* Blueprint */
 table {
-  border-spacing:0;
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  -o-transform: translateZ(0);
+  transform: translateZ(0);
+  /* Other transform properties here */
 }
 
 #blueprint_area {
@@ -238,6 +243,7 @@ li p {
 #preview_area img {
   min-width: 140px;
   max-width: 240px;
+  image-rendering: pixelated;
 }
 
 #footer {
@@ -267,4 +273,22 @@ li p {
   padding:2px;
   float:right;
 }
-#
+
+/* New crap */
+.bp_row {
+  display: flex;
+}
+
+.bp_cell {
+  display: flex;
+  width: 50px;
+}
+
+.bp_cube_table {
+  display: flex;
+  flex-direction: column;
+}
+
+.bp_cube_row {
+  display: flex;
+}
